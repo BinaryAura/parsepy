@@ -141,6 +141,66 @@ class Lexer:
     EOI = "EOI"
     UNK = "unknown"
 
+    class Token:
+        """
+
+        """
+
+        def __init__(self, ttype: Hashable, token: str, line: int = 1, col: int = 1, file: Optional[str] = None):
+            """
+
+            :param ttype:
+            :param token:
+            :param line:
+            :param col:
+            """
+
+            self.type = ttype
+            self.token = token
+            self.line = line
+            self.col = col
+            self.file = file
+
+        def loc_str(self):
+            if self.file:
+                return "{}:{}:{}".format(self.file, self.line, self.col)
+            else:
+                return "{}:{}".format(self.line, self.col)
+
+        def __eq__(self, other) -> bool:
+            """
+
+            :param other:
+            :return:
+            """
+
+            return self.type == other.type and self.token == other.token
+
+        def __ne__(self, other) -> bool:
+            """
+
+            :param other:
+            :return:
+            """
+
+            return self.type != other.type or self.token != other.token
+
+        def __str__(self) -> str:
+            """
+
+            :return:
+            """
+
+            return self.token
+
+        def __repr__(self) -> str:
+            """
+
+            :return:
+            """
+
+            return "{}({})".format(self.type, repr(self.token))
+
     class Iter:
         """
 
