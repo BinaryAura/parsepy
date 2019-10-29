@@ -12,12 +12,6 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/BinaryAura/parsepy",
-    packages=[
-        "parsepy.cfg",
-        "parsepy.lexer",
-        "parsepy.parser",
-        "parespy.ast"
-    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent"
