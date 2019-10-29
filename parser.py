@@ -1,7 +1,7 @@
 from __future__ import annotations
-from typing import Iterable, Callable, Dict, Any, Optional, Hashable, List, Union, Set, Iterator
+from typing import Iterable, List, Union, Set
 
-from parsepy.lexer import *
+from lexer import *
 
 
 class CFGError(Exception):
