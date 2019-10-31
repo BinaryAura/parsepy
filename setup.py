@@ -16,5 +16,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent"
     ],
+    packages=["parsepy"],
     python_requires='>3.7'
 )
