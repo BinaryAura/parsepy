@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Optional, Callable
 
 from parsepy.lexer import Token
+from parsepy.parser import CFG
 
 
 class AST:

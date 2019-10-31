@@ -82,3 +82,76 @@ class LL1(Parser):
                 else:
                     ps += reversed(prod.prod)
         return out_tree[0]
+
+
+def test():
+    from collections import namedtuple
+
+    tokreg = {
+        "t_plus": r"\+",
+        "t_mult": r"\*",
+        "t_lparen": r"\(",
+        "t_rparen": r"\)",
+        "t_id": r"[A-Za-z_]\w*",
+        "t_ws": r"[ \t]+",
+    }
+
+    act = {"t_ws": lambda a: None}
+
+    lexer = Lexer(tokreg, act)
+
+    cfg_str = """E  -> T E'
+                E' -> t_mult T E' | \u03B5
+                T  -> F T'
+                T' -> t_plus F T' |
+                F  -> t_lparen E t_rparen | t_id"""
+
+    cfg = CFG.parse(cfg_str)
+
+    ids = {'A': 1, 'B': 2, 'X': 4, 'C': 0}
+
+    OPLST = namedtuple('OPLST', 'op operand')
+
+    def e(vals):
+        if vals[1].op is None:
+            return vals[0]
+        elif vals[1].op == '*':
+            return vals[0] * vals[1].operand
+
+    def ep1(vals):
+        return OPLST(op=vals[0], operand=e(vals[1:]))
+
+    def ep2(vals):
+        return OPLST(op=None, operand=None)
+
+    def t(vals):
+        if vals[1].op is None:
+            return vals[0]
+        elif vals[1].op == '+':
+            return vals[0] + vals[1].operand
+
+    def tp1(vals):
+        return OPLST(op=vals[0], operand=t(vals[1:]))
+
+    def tp2(vals):
+        return OPLST(op=None, operand=None)
+
+    def f1(vals):
+        return vals[1]
+
+    def f2(vals):
+        return ids[vals[0]]
+
+    parser = LL1(lexer, cfg, {0: e, 1: ep1, 2: ep2, 3: t, 4: tp1, 5: tp2, 6: f1, 7: f2})
+
+    string = "X*(A*X+B)+C"
+
+    # tree = parser.tree("X*(A*X+B)+C")
+
+    # tree.print_tree()
+
+    print(parser.eval(string))
+
+
+if __name__ == "__main__":
+    test()
