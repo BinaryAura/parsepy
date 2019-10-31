@@ -254,7 +254,7 @@ class Lexer:
 
 def test():
     from parsepy.lexer import Lexer
-    from parsepy.lexer.error import *
+    from parsepy.lexer.error import LexerError
 
     import sys
 
