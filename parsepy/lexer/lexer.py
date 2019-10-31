@@ -5,7 +5,6 @@
 from __future__ import annotations
 from typing import Hashable, Dict, Any, Optional, Tuple, Callable, Iterator
 
-from parsepy.lexer.error import *
 import re
 
 
@@ -254,6 +253,9 @@ class Lexer:
 
 
 def test():
+    from parsepy.lexer import Lexer
+    from parsepy.lexer.error import *
+
     import sys
 
     tokreg = {
@@ -267,9 +269,9 @@ def test():
 
     act = {"t_ws": lambda a: None}
     try:
-        lexer = Lexer(tokreg, act)
+        lex = Lexer(tokreg, act)
 
-        for tok in lexer.tokenize('A*x*x + B*x + C'):
+        for tok in lex.tokenize('A*x*x + B*x + C'):
             print(repr(tok))
     except LexerError as err:
         print(str(err), file=sys.stderr)
