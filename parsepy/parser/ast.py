@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from typing import Any, Optional, Callable
 
-from parsepy.parser.parser import AST, CFG, Token
+from parsepy.lexer import Token
 
 
 class AST:
