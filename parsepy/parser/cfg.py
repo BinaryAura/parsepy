@@ -1,7 +1,8 @@
+from __future__ import annotations
 from typing import Any, List, Union, Hashable, Set, Iterator
 
 from parsepy.parser.error import CFGError
-from parsepy.parser.parser import CFG, Lexer
+from parsepy.lexer.lexer import Lexer
 
 
 class CFG:
