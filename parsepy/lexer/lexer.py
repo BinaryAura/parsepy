@@ -5,6 +5,8 @@
 from __future__ import annotations
 from typing import Hashable, Dict, Any, Optional, Tuple, Callable, Iterator
 
+from ..lexer import error
+
 import re
 
 
