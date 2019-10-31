@@ -1,6 +1,7 @@
 from typing import Dict, Callable, Iterable, Optional, Hashable
 
 from parsepy.lexer import Lexer
+from parsepy.parser.ast import AST
 from parsepy.parser.error import ParserError, UnexpToken, UnkToken
 from parsepy.parser.parser import CFG, Parser
 
