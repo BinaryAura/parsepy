@@ -186,9 +186,11 @@ class CFG:
                     return f
             return f | {CFG.EPSILON}
 
+
+
         # { X in terminals }
         if isinstance(rule, str) or rule == CFG.EPSILON:
-            if rule in self.rules:
+            if rule in (r.name for r in self.rules):
                 rule = CFG.NonTerm(rule)
             else:
                 return {rule}
@@ -236,7 +238,10 @@ class CFG:
         """
 
         if not isinstance(rule, CFG.NonTerm):
-            raise TypeError("unsupported type: {} for FIRST".format(rule.__class__))
+            if rule in (r.name for r in self.rules):
+                rule = CFG.NonTerm(rule)
+            else:
+                raise TypeError("unsupported type: {} for FIRST".format(rule.__class__))
 
         if rule not in self:
             raise error.CFGError("Non-Term({}) is not a rule".format(rule))
