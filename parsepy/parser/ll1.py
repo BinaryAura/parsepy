@@ -11,7 +11,7 @@ class LL1(Parser):
 
     """
 
-    def __init__(self, lexer: Lexer, cfg: CFG, actions: Dict[CFG.NonTerm, Callable]):
+    def __init__(self, lexer: Lexer, cfg: CFG, actions: Dict[CFG.NonTerm, Callable] = {}):
         """
 
         :param lexer:
