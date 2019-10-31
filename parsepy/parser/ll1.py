@@ -1,9 +1,9 @@
 from typing import Dict, Callable, Iterable, Optional, Hashable
 
 from parsepy.lexer import Lexer
-from parsepy.parser.ast import AST
-from parsepy.parser.error import ParserError, UnexpToken, UnkToken
-from parsepy.parser.parser import CFG, Parser
+from parsepy.parser import AST
+from parsepy.parser import error
+from parsepy.parser import CFG, Parser
 
 
 class LL1(Parser):
@@ -27,7 +27,7 @@ class LL1(Parser):
                 if sym not in self.lltable[prod.rule]:
                     self.lltable[prod.rule][sym] = prod
                 else:
-                    raise ParserError("Ambiguous Grammar in rule {}".format(prod.rule))
+                    raise error.ParserError("Ambiguous Grammar in rule {}".format(prod.rule))
 
     def eval(self, string: Iterable) -> AST:
         tree = self.tree(string)
@@ -57,11 +57,11 @@ class LL1(Parser):
                     curr = curr.parent
                 tok = next(t_iter)
             elif Lexer.EOI != tok.type and tok.type not in self.cfg.terms:
-                raise UnexpToken(tok, set(self.lltable[ps[-1]].keys()))
+                raise error.UnexpToken(tok, set(self.lltable[ps[-1]].keys()))
             elif Lexer.UNK == tok.type:
-                raise UnkToken(tok)
+                raise error.UnkToken(tok)
             elif tok.type not in self.lltable[ps[-1]]:
-                raise UnkToken(tok, set(self.lltable[ps[-1]].keys()))
+                raise error.UnkToken(tok, set(self.lltable[ps[-1]].keys()))
             else:
                 prod = self.lltable[ps[-1]][tok.type]
                 r = ps.pop()

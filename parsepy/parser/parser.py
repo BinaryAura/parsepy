@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from parsepy.lexer import *
 from parsepy.parser.cfg import CFG
-from parsepy.parser.error import ParserError
+from parsepy.parser import error
 
 
 class Parser:
@@ -20,12 +20,12 @@ class Parser:
 
         nc = lexer.tokens & cfg.rules
         if nc:
-            raise ParserError("Abiguous key: {}".format(nc.pop()))
+            raise error.ParserError("Abiguous key: {}".format(nc.pop()))
         if Lexer.EOI in lexer.tokens | cfg.rules:
-            raise ParserError("EOI token, {}, cannot be a key".format(Lexer.EOI))
+            raise error.ParserError("EOI token, {}, cannot be a key".format(Lexer.EOI))
         mt = cfg.terms - lexer.tokens
         if mt:
-            raise ParserError("Terminal not defined: {}".format(mt.pop()))
+            raise error.ParserError("Terminal not defined: {}".format(mt.pop()))
 
         self.lexer = lexer
         self.cfg = cfg

@@ -1,3 +1,3 @@
-from ..parser import *
-from ..parser.parser import *
-# from ..parser import ll1
+from .parser import *
+from .ast import *
+from .ll1 import *

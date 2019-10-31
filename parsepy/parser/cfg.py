@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any, List, Union, Hashable, Set, Iterator
 
-from parsepy.parser.error import CFGError
+from parsepy.parser import error
 from parsepy.lexer.lexer import Lexer
 
 
@@ -141,10 +141,10 @@ class CFG:
         for prod in self.productions:
             for i in prod:
                 if isinstance(i, CFG.NonTerm) and i not in self.rules:
-                    raise CFGError("Undefined Non-Terminal: {}".format(i))
+                    raise error.CFGError("Undefined Non-Terminal: {}".format(i))
 
         if start not in [r.name for r in self.rules]:
-            raise CFGError("Invalid Start Rule: {}".format(start))
+            raise error.CFGError("Invalid Start Rule: {}".format(start))
         self.start = start
 
     @property
@@ -196,7 +196,7 @@ class CFG:
             raise TypeError("unsupported type: {} for FIRST".format(rule.__class__))
 
         if rule not in self:
-            raise CFGError("Non-Term({}) is not a rule".format(rule))
+            raise error.CFGError("Non-Term({}) is not a rule".format(rule))
 
         out = set()
 
@@ -239,7 +239,7 @@ class CFG:
             raise TypeError("unsupported type: {} for FIRST".format(rule.__class__))
 
         if rule not in self:
-            raise CFGError("Non-Term({}) is not a rule".format(rule))
+            raise error.CFGError("Non-Term({}) is not a rule".format(rule))
 
         out = set()
 
