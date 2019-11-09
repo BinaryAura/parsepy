@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Callable
+from typing import Any, Optional, Callable, Union
 
 from parsepy.lexer import Token
 from parsepy.parser import CFG
@@ -11,7 +11,7 @@ class AST:
 
     """
 
-    def __init__(self, value: Any, evalfn: Optional[Callable] = None, parent: AST = None):
+    def __init__(self, value: Union[CFG.Prod, Token], evalfn: Optional[Callable] = None, line: int = 1, col: int = 1, file: Optional[str] = None, parent: AST = None):
         """
 
         :param value:
@@ -21,8 +21,14 @@ class AST:
 
         self.children = []
         self.value = value
+        self.line = line
+        self.col = col
+        if file is None:
+            self.file = ""
+        else:
+            self.file = file
         if evalfn is None:
-            if isinstance(value, CFG.NonTerm) or not self.value:
+            if isinstance(value, CFG.Prod) or not self.value:
                 self.evalfn = lambda a: None
             else:
                 self.evalfn = lambda a: self.value.token
@@ -46,7 +52,7 @@ class AST:
         :return:
         """
 
-        vals = []
+        vals = [self]
         for c in self:
             vals += [c.eval()]
         ans = self.evalfn(vals)

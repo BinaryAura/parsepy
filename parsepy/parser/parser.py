@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from typing import Iterable
+
+from os import PathLike
+
 from parsepy.lexer import *
 from parsepy.parser.cfg import CFG
 from parsepy.parser import error
@@ -30,3 +34,28 @@ class Parser:
         self.lexer = lexer
         self.cfg = cfg
         self.actions = actions
+
+    def get_tokens(self, string: Iterable, file: PathLike = "") -> Lexer.Iter:
+        """
+
+        :param string:
+        :return:
+        """
+
+        if not file:
+            file = repr(string.__class__)
+
+        if isinstance(string, Iterable):
+            t_iter = self.lexer.tokenize(string, file)
+        else:
+            raise ValueError("string must be Iterable, found {}".format(string.__class__))
+        return t_iter
+
+    def get_tokens_from_file(self, path: PathLike) -> Lexer.Iter:
+        """
+
+        :param path:
+        :return:
+        """
+
+        return self.lexer.tokenize_file(path)

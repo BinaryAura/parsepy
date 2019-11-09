@@ -1,4 +1,6 @@
-from typing import Dict, Callable, Iterable, Optional, Hashable
+from typing import Dict, Callable, Iterable, Optional, Hashable, Any, Iterator
+
+from os import PathLike
 
 from parsepy.lexer import Lexer
 from parsepy.parser import AST
@@ -29,15 +31,51 @@ class LL1(Parser):
                 else:
                     raise error.ParserError("Ambiguous Grammar in rule {}".format(prod.rule))
 
-    def eval(self, string: Iterable) -> AST:
-        tree = self.tree(string)
-        return tree.eval()
+    def eval_file(self, path: PathLike) -> Any:
+        """
 
-    def tree(self, string: Iterable, start: Optional[Hashable] = None) -> AST:
-        if isinstance(string, Iterable):
-            t_iter = self.lexer.tokenize(string)
+
+        :param path:
+        :return:
+        """
+
+        return self.tree_from_file(path).eval()
+
+    def tree_from_file(self, path: PathLike, start: Optional[Hashable] = None) -> AST:
+        """
+
+        :param start:
+        :param path:
+        :return:
+        """
+
+        return self.tree(self.get_tokens_from_file(path), start, path)
+
+    def eval(self, string: Iterable) -> Any:
+        """
+
+        :param string:
+        :return:
+        """
+
+        return self.tree(string).eval()
+
+    def tree(self, string: Iterable, start: Optional[Hashable] = None, path: PathLike = "") -> AST:
+        """
+
+        :param string:
+        :param start:
+        :param path:
+        :return:
+        """
+
+        if not path:
+            path = repr(string.__class__)
+
+        if isinstance(string, Iterator):
+            t_iter = string
         else:
-            raise ValueError("string must be Iterable, found {}".format(string.__class__))
+            t_iter = self.get_tokens(string, path)
         tok = next(t_iter)
         ps = [Lexer.EOI]
         if start is None or isinstance(start, Hashable):
@@ -51,7 +89,7 @@ class LL1(Parser):
             if Lexer.EOI != tok.type and ps[-1] == tok.type:
                 t = ps.pop()
                 pops[-1] -= 1
-                curr.add_child(AST(tok))
+                curr.add_child(AST(tok, None, tok.line, tok.col, tok.file))
                 while pops[-1] == 0:
                     pops.pop()
                     curr = curr.parent
@@ -72,7 +110,7 @@ class LL1(Parser):
                     act = self.actions[prod.idx]
                 except KeyError:
                     act = None
-                curr.add_child(AST(prod, act))
+                curr.add_child(AST(prod, act, tok.line, tok.col, tok.file))
                 curr = curr.children[-1]
                 if not prod:
                     curr.add_child(AST(CFG.EPSILON, None))

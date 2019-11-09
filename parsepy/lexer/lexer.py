@@ -5,6 +5,8 @@
 from __future__ import annotations
 from typing import Hashable, Dict, Any, Optional, Tuple, Callable, Iterator
 
+from os import PathLike
+
 from ..lexer import error
 
 import re
@@ -144,7 +146,7 @@ class Lexer:
 
         """
 
-        def __init__(self, lexer, str_in: str):
+        def __init__(self, lexer, str_in: str, file: PathLike):
             """
 
             :param lexer:
@@ -152,6 +154,7 @@ class Lexer:
             """
 
             self.lexer = lexer
+            self.file = file
             self.str_in = str_in
             self.line_idx = [i for i in range(len(str_in)) if i == 0 or str_in[i - 1] == '\n']
             self.n = 0
@@ -178,15 +181,15 @@ class Lexer:
                     raise StopIteration
                 else:
                     self.stop = True
-                    t = Token(Lexer.EOI, None, len(self.line_idx), self.n - self.line_idx[-1])
+                    t = Token(Lexer.EOI, None, len(self.line_idx), self.n - self.line_idx[-1], self.file)
                     return t
             token = None
             while token is None:
-                ttype, token, length = self.lexer.get_token(self.str_in[self.n])
+                ttype, token, length = self.lexer.get_token(self.str_in[self.n:])
                 if token is not None:
                     line = self.line_idx.index(max(i for i in self.line_idx if i <= self.n))
                     col = self.n - self.line_idx[line]
-                    out = Token(ttype, token, line + 1, col + 1)
+                    out = Token(ttype, token, line + 1, col + 1, self.file)
                 self.n += length
             return out
 
@@ -244,14 +247,29 @@ class Lexer:
         except KeyError:
             return greedy[0], greedy[1], len(greedy[1])
 
-    def tokenize(self, str_in: str) -> Lexer.Iter:
+    def tokenize(self, str_in: str, file: PathLike = "") -> Lexer.Iter:
         """
 
+        :param file:
         :param str_in:
         :return:
         """
 
-        return Lexer.Iter(self, str_in)
+        if not file:
+            file = repr(str_in.__class__)
+
+        return Lexer.Iter(self, str_in, file)
+
+    def tokenize_file(self, path: PathLike) -> Lexer.Iter:
+        """
+
+        :param path:
+        :return:
+        """
+
+        with open(path, "r") as file:
+            string = file.read()
+        return Lexer.Iter(self, string, path)
 
 
 def test():
