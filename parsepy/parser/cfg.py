@@ -186,8 +186,6 @@ class CFG:
                     return f
             return f | {CFG.EPSILON}
 
-
-
         # { X in terminals }
         if isinstance(rule, str) or rule == CFG.EPSILON:
             if rule in (r.name for r in self.rules):
@@ -283,6 +281,7 @@ class CFG:
             out = (out - {CFG.EPSILON}) | self.follow(prod.rule)
         return out
 
+    @staticmethod
     def parse(cfgstr: Union[str, Iterator[str]]) -> CFG:
         """
 
