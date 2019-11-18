@@ -156,7 +156,7 @@ class Lexer:
             self.lexer = lexer
             self.file = file
             self.str_in = str_in
-            self.line_idx = [i for i in range(len(str_in)) if i == 0 or str_in[i - 1] == '\n']
+            self.line_idx = [i for i in range(len(str_in)) if i == 0 or str_in[i - 1] == '\n'] if len(self.str_in) else [-1]
             self.n = 0
             self.stop = False
 
@@ -176,15 +176,18 @@ class Lexer:
             :return:
             """
 
-            if self.n >= len(self.str_in):
-                if self.stop:
-                    raise StopIteration
-                else:
-                    self.stop = True
-                    t = Token(Lexer.EOI, None, len(self.line_idx), self.n - self.line_idx[-1], self.file)
-                    return t
             token = None
             while token is None:
+                if self.n >= len(self.str_in):
+                    if self.stop:
+                        raise StopIteration
+                    else:
+                        self.stop = True
+                        if self.str_in:
+                            t = Token(Lexer.EOI, None, len(self.line_idx), self.n - self.line_idx[-1], self.file)
+                        else:
+                            t = Token(Lexer.EOI, None, -1, -1, self.file)
+                        return t
                 ttype, token, length = self.lexer.get_token(self.str_in[self.n:])
                 if token is not None:
                     line = self.line_idx.index(max(i for i in self.line_idx if i <= self.n))
