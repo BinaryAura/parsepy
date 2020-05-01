@@ -23,6 +23,8 @@ class AST:
         self.value = value
         self.line = line
         self.col = col
+        self.raw = ''
+        self.idx = 0
         if file is None:
             self.file = ""
         else:

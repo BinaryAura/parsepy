@@ -76,6 +76,7 @@ class LL1(Parser):
             t_iter = string
         else:
             t_iter = self.get_tokens(string, path)
+
         tok = next(t_iter)
         ps = [Lexer.EOI]
         if start is None or isinstance(start, Hashable):
@@ -87,19 +88,24 @@ class LL1(Parser):
         curr = out_tree
         while ps[-1] != Lexer.EOI:
             if Lexer.EOI != tok.type and ps[-1] == tok.type:
-                t = ps.pop()
+                ps.pop()
                 pops[-1] -= 1
                 curr.add_child(AST(tok, None, tok.line, tok.col, tok.file))
+                curr.children[-1].idx = tok.idx
+                curr.children[-1].raw = tok.raw
                 while pops[-1] == 0:
                     pops.pop()
+                    curr.raw = t_iter.str_in[curr.idx: curr.children[-1].idx + len(curr.children[-1].raw)]
                     curr = curr.parent
                 tok = next(t_iter)
             elif Lexer.EOI != tok.type and tok.type not in self.cfg.terms:
-                raise error.UnexpToken(tok, set(self.lltable[ps[-1]].keys()))
+                raise error.UnkToken(tok)
             elif Lexer.UNK == tok.type:
                 raise error.UnkToken(tok)
+            elif ps[-1] in self.cfg.terms:
+                raise error.UnexpToken(tok, {ps[-1],})
             elif tok.type not in self.lltable[ps[-1]]:
-                raise error.UnkToken(tok, set(self.lltable[ps[-1]].keys()))
+                raise error.UnexpToken(tok, set(self.lltable[ps[-1]].keys()))
             else:
                 prod = self.lltable[ps[-1]][tok.type]
                 r = ps.pop()
@@ -110,12 +116,17 @@ class LL1(Parser):
                     act = self.actions[prod.idx]
                 except KeyError:
                     act = None
+                # Add prod as child to curr
                 curr.add_child(AST(prod, act, tok.line, tok.col, tok.file))
+                curr.children[-1].idx = tok.idx
                 curr = curr.children[-1]
                 if not prod:
                     curr.add_child(AST(CFG.EPSILON, None))
+                    curr.children[-1].idx = tok.idx
+                    curr.children[-1].raw = ''
                     while curr.parent and pops[-1] == 0:
                         pops.pop()
+                        curr.raw = t_iter.str_in[curr.idx: curr.children[-1].idx + len(curr.children[-1].raw)]
                         curr = curr.parent
                 else:
                     ps += reversed(prod.prod)
