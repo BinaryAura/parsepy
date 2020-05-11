@@ -17,7 +17,7 @@ class Token:
 
     """
 
-    def __init__(self, ttype: Hashable, token: str, idx: int, line: int = 1, col: int = 1, file: Optional[str] = None):
+    def __init__(self, ttype: Hashable, token: Any, text: str, line: int = 1, col: int = 1, file: Optional[str] = None):
         """
 
         :param ttype:
@@ -28,14 +28,14 @@ class Token:
 
         self.type = ttype
         self.token = token
-        self.idx = idx
+        self.text = text
         self.line = line
         self.col = col
         self.file = file
 
     def loc_str(self):
         if self.file:
-            return  "{}:{}:{}".format(self.file, self.line, self.col)
+            return "{}:{}:{}".format(self.file, self.line, self.col)
         else:
             return "{}:{}".format(self.line, self.col)
 
@@ -125,15 +125,15 @@ class Lexer:
                     else:
                         self.stop = True
                         if self.str_in:
-                            t = Token(Lexer.EOI, None, self.n, len(self.line_idx), self.n - self.line_idx[-1], self.file)
+                            t = Token(Lexer.EOI, None, '', len(self.line_idx), self.n - self.line_idx[-1], self.file)
                         else:
-                            t = Token(Lexer.EOI, None, self.n,  -1, -1, self.file)
+                            t = Token(Lexer.EOI, None, '', -1, -1, self.file)
                         return t
-                ttype, token, length = self.lexer.get_token(self.str_in[self.n:])
+                ttype, token, text, length = self.lexer.get_token(self.str_in[self.n:])
                 if token is not None:
                     line = self.line_idx.index(max(i for i in self.line_idx if i <= self.n))
                     col = self.n - self.line_idx[line]
-                    out = Token(ttype, token, self.n, line + 1, col + 1, self.file)
+                    out = Token(ttype, token, text, line + 1, col + 1, self.file)
                 self.n += length
             return out
 
@@ -187,9 +187,9 @@ class Lexer:
                 if greedy[0] == Lexer.UNK or len(greedy[1]) < len(match[0]):
                     greedy = (token, match[0])
         try:
-            return greedy[0], self.actions[greedy[0]](greedy[1]), len(greedy[1])
+            return greedy[0], self.actions[greedy[0]](greedy[1]), greedy[1], len(greedy[1])
         except KeyError:
-            return greedy[0], greedy[1], len(greedy[1])
+            return greedy[0], greedy[1], greedy[1], len(greedy[1])
 
     def tokenize(self, str_in: str, file: PathLike = "") -> Lexer.Iter:
         """

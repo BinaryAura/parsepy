@@ -11,7 +11,8 @@ class AST:
 
     """
 
-    def __init__(self, value: Union[CFG.Prod, Token], evalfn: Optional[Callable] = None, line: int = 1, col: int = 1, file: Optional[str] = None, parent: AST = None):
+    def __init__(self, value: Union[CFG.Prod, Token], text: str, evalfn: Optional[Callable] = None,
+                 line: int = 1, col: int = 1, file: Optional[str] = None, parent: AST = None):
         """
 
         :param value:
@@ -19,24 +20,118 @@ class AST:
         :param parent:
         """
 
-        self.children = []
         self.value = value
         self.line = line
         self.col = col
-        self.raw = ''
-        self.idx = 0
-        if file is None:
-            self.file = ""
-        else:
-            self.file = file
-        if evalfn is None:
-            if isinstance(value, CFG.Prod) or not self.value:
-                self.evalfn = lambda a: None
-            else:
-                self.evalfn = lambda a: self.value.token
-        else:
-            self.evalfn = evalfn
+        self.text = text
+        self.file = file
+        self.evalfn = evalfn
+        self._children = []
         self.parent = parent
+
+    @property
+    def children(self):
+        return self._children
+
+    @children.setter
+    def children(self, children):
+        if not isinstance(children, (list, tuple)):
+            children = [children]
+        for c in children:
+            if not isinstance(c, AST):
+                raise ValueError("children must be an list or tuple of AST objects or an AST object")
+        for c in self.children:
+            c._parent = None
+        for c in children:
+            c._parent = self
+        self._children = children
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value, (Token, CFG.Prod)):
+            raise ValueError("value must be Token or Prod")
+        self._value = value
+
+    @property
+    def line(self):
+        return self._line
+
+    @line.setter
+    def line(self, line):
+        if not isinstance(line, int):
+            raise ValueError("line must be an integer")
+        self._line = line
+
+    @property
+    def col(self):
+        return self._col
+
+    @col.setter
+    def col(self, col):
+        if not isinstance(col, int):
+            raise ValueError("col must be an integer")
+        self._col = col
+
+    @property
+    def file(self):
+        return self._file
+
+    @file.setter
+    def file(self, file):
+        if file is None:
+            self._file = str(type(self.text))
+        elif isinstance(file, str):
+            self._file = file
+        else:
+            raise ValueError("file must be None or str")
+
+    @property
+    def evalfn(self):
+        return self._evalfn
+
+    @evalfn.setter
+    def evalfn(self, evalfn):
+        if not callable(evalfn) and evalfn is not None:
+            raise ValueError("evalfn must be callable")
+        if evalfn is None:
+            if isinstance(self.value, CFG.Prod):
+                self._evalfn = lambda a: None
+            else:
+                self._evalfn = lambda a: self.value.token
+        else:
+            self._evalfn = evalfn
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, text):
+        if not isinstance(text, str):
+            raise ValueError("text must be str")
+        self._text = text
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        if not isinstance(parent, AST) and parent is not None:
+            raise ValueError("parent must be AST or None")
+        try:
+            if self.parent is not None:
+                self.parent.remove_child(self)
+        except AttributeError:
+            pass
+        if parent is not None:
+            parent.add_child(self)
+        else:
+            self._parent = None
 
     def add_child(self, child: AST):
         """
@@ -46,7 +141,9 @@ class AST:
         """
 
         self.children += [child]
-        self.children[-1].parent = self
+
+    def remove_child(self, child: AST):
+        self.parent.children = [c for c in self.parent.children if c is not child]
 
     def eval(self):
         """
