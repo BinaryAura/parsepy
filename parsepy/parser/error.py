@@ -91,5 +91,5 @@ class UnkToken(ParserError):
         :param tok:
         """
 
-        super().__init__(token, "Unknown Token: {}".format(token))
-
+        super().__init__("Unknown Token: {}".format(token))
+        self.token = token
