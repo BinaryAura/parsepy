@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="parsepy",
-    version="0.5.1",
+    version="0.5.2",
     author="BinaryAura",
     author_email="jadunker@hotmail.com",
     description="A run-time parser with semantics and interpretation features",

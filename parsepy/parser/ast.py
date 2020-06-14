@@ -101,7 +101,7 @@ class AST:
             if isinstance(self.value, CFG.Prod):
                 self._evalfn = lambda a: None
             else:
-                self._evalfn = lambda a: self.value.token
+                self._evalfn = lambda a: self.value
         else:
             self._evalfn = evalfn
 
